@@ -87,4 +87,5 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 		# Delete directory
 		rm -rf ${directories_to_delete[$index]}
 	done
+    echo -e "${INFO}Done${NC}"
 fi
