@@ -83,8 +83,10 @@ echo
 hashes_to_delete=$(printf "|%s" "${hashes_to_delete[@]}")
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-	curl -s "${HOST}/api/v2/torrents/delete" --cookie "${cookie}" --data "hashes=${hashes_to_delete:1}"
 	for index in ${!torrents_to_delete[@]}; do
+		# Delete torrent
+		curl -s "${HOST}/api/v2/torrents/delete" --cookie "${cookie}" --data "hashes=${hashes_to_delete[$index]}&deleteFiles=true"
+		# Delete directory
 		rm -rf ${directories_to_delete[$index]}
 	done
 fi
