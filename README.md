@@ -2,9 +2,9 @@
 
 This script is used to manage torrents in qBittorrent. It authenticates with the qBittorrent API, fetches all torrents and determines if they should be deleted. It determines this by checking if the torrents;
 
-- are in a managed category,
-- have seeded long enough (default 10 days),
-- and aren't hardlinked.
+- are in a managed category (set in the config),
+- aren't hardlinked (and won't save any space if deleted),
+- and have seeded long enough (default 10 days).
 
 It then removes them as well as their directory in case you had to extract compressed files from the torrent that aren't otherwise deleted by qBittorrent. 
 
