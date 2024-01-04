@@ -21,9 +21,10 @@ This script requires the following tools:
 To install this script, clone this repository and install the dependencies. You can do this by running the following commands:
 
 ```bash
+sudo apt install jq curl
 git clone https://github.com/Luckinber/qbittorrent-manager.git
 cd qbittorrent-manager
-sudo apt install jq curl
+chmod +x qbittorrent-manager.sh
 ```
 
 ## Configuration
@@ -43,7 +44,7 @@ Other values can be changed as well, but the defaults should be fine.
 This script must be run on a machine that has access to the filesystem where your torrents are stored (either locally or through a network share that supports hardlinks). After installing the dependencies and configuring the script, you can run it with the following command:
 
 ```bash
-bash qbittorrent-manager.sh
+./qbittorrent-manager.sh
 ```
 
 ## Note
