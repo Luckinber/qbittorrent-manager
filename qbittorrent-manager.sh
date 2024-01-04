@@ -20,7 +20,7 @@ if [ -z "${cookie}" ]; then
 fi
 
 # Get all torrents
-response=$(curl -s "$HOST/api/v2/torrents/info" --cookie "$cookie")
+response=$(curl -s "$HOST/api/v2/torrents/info" --cookie "$cookie" --data "sort=name")
 # Parse JSON response
 json=$(echo $response | jq -r)
 
