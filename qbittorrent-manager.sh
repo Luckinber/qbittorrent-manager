@@ -6,6 +6,12 @@ declare -a torrents_to_delete
 declare -a hashes_to_delete
 declare -a directories_to_delete
 
+if [[ $1 == "-y" ]]; then
+    AUTO_YES=true
+else 
+    AUTO_YES=false
+fi
+
 # Check if config.sh has been configured
 if [ "$USERNAME" == "CHANGE_ME" ] || [ "$PASSWORD" == "CHANGE_ME" ] || [ "$RELATIVE_PATH" == "CHANGE_ME" ] || [ "$ABSOLUTE_PATH" == "CHANGE_ME" ] || [ "$MANAGED_CATEGORIES" == "CHANGE_ME" ]; then
 	echo -e "${WARNING}Please configure config.sh before running this script${NC}"
@@ -72,18 +78,22 @@ for index in ${!hashes_to_delete[@]}; do
 	echo -e "${WARNING} - ${NAME}${torrents_to_delete[$index]} ${DETAIL}in ${VALUE}${directories_to_delete[$index]}${NC}"
 done
 
-# Confirm deletion
-echo -en "${WARNING}Are you sure you want to delete these torrents? [y/N] ${NC}"
-read -n 1 -r
-echo
+if $AUTO_YES; then
+    REPLY="y"
+else
+    # Confirm deletion
+    echo -en "${WARNING}Are you sure you want to delete these torrents? [y/N] ${NC}"
+    read -n 1 -r
+    echo
+fi
 
 # Make list of hashes to delete "|" delimited
 hashes_to_delete=$(printf "|%s" "${hashes_to_delete[@]}")
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
+    # Delete torrents
+    curl -s --data "hashes=${hashes_to_delete:1}&deleteFiles=false" -X POST "$HOST/api/v2/torrents/delete" --cookie "$cookie"
 	for index in ${!torrents_to_delete[@]}; do
-		# Delete torrent
-		curl -s "$HOST/api/v2/torrents/delete" --cookie "$cookie" --data "hashes=${hashes_to_delete[$index]}&deleteFiles=true"
 		# Delete directory
 		rm -rf ${directories_to_delete[$index]}
 	done
