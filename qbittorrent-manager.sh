@@ -94,6 +94,6 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     # Delete torrents
     curl -s --data "hashes=${hashes_to_delete:1}&deleteFiles=false" -X POST "$HOST/api/v2/torrents/delete" --cookie "$cookie"
 	# Delete empty directories
-    rm -r "${directories_to_delete[@]}"
+    rm -rf "${directories_to_delete[@]}"
     echo -e "${INFO}Done${NC}"
 fi
