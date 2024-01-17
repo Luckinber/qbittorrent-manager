@@ -33,8 +33,8 @@ Before running the script, you need to configure it by editing the `config.sh` f
 
 - `USERNAME`: Your qBittorrent username.
 - `PASSWORD`: Your qBittorrent password.
-- `RELATIVE_PATH`: The path that qBitTorrent thinks your torrents are stored at.
-- `ABSOLUTE_PATH`: The actual path that your torrents are stored at on your filesystem.
+- `RELATIVE_PATH`: The ROOT path that qBitTorrent thinks ALL torrents are stored at.
+- `ABSOLUTE_PATH`: The actual ROOT path that ALL torrents are stored at on your filesystem.
 - `MANAGED_CATEGORIES`: The categories of torrents that this script should manage.
 
 Other values can be changed as well, but the defaults should be fine.
