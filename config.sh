@@ -22,10 +22,10 @@ PASSWORD=CHANGE_ME
 # ------------------------------------------------------------------------------------------------- #
 # --------------------------------qBittorrent torrent management----------------------------------- #
 # ------------------------------------------------------------------------------------------------- #
-# The path that qBitTorrent thinks your torrents are stored at
+# The ROOT path that qBitTorrent thinks ALL torrents are stored at, no trailing slash
 RELATIVE_PATH=CHANGE_ME
 
-# The actual path that your torrents are stored at on your filesystem
+# The actual ROOT path that ALL torrents are stored at on your filesystem, no trailing slash
 ABSOLUTE_PATH=CHANGE_ME
 
 # The categories of torrents that this script should manage, delimited by spaces eg ("movies" "tv" "books")
@@ -33,6 +33,20 @@ MANAGED_CATEGORIES=("CHANGE_ME" "CHANGE_ME")
 
 # The number of days a torrent should seed before it's eligible for deletion
 SEEDING_DAYS_REQUIRED=10
+
+# ------------------------------------------------------------------------------------------------- #
+# -----------------------------------------Torrent Checks------------------------------------------ #
+# ------------------------------------------------------------------------------------------------- #
+# NOTE: If all the checks are turned off, the script will attempt to delete all torrents
+
+# The check to skip if the torrent is not in a managed category
+MANAGED_CHECK=true
+
+# The check to skip hardlinked torrents
+HARDLINK_CHECK=true
+
+# The check to skip if the torrent hasn't seeded for the required number of days
+SEEDING_CHECK=true
 
 # ------------------------------------------------------------------------------------------------- #
 # -------------------------------Define colours for console output--------------------------------- #

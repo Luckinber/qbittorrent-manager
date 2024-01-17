@@ -42,19 +42,19 @@ for row in $(echo $json | jq -r '.[] | @base64'); do
     torrent_seeding_time=$(echo $torrent | jq -r '.seeding_time') # Torrent seeding time in seconds
 
     # Check if torrent category is managed
-    if [[ ! " ${MANAGED_CATEGORIES[@]} " =~ " $torrent_category " ]]; then
+    if $MANAGED_CHECK && [[ ! "${MANAGED_CATEGORIES[@]}" =~ "$torrent_category" ]]; then
         echo -e "${INFO}Skipping ${NAME}$torrent_name${NC}"
         echo -e "${DETAIL}   Unmanaged category: ${VALUE}$torrent_category${NC}"
         continue
     fi
     # Check if torrent contains files with more than one hard link
-    if [ $(find "$torrent_path" -type f -links +1 2>/dev/null | wc -l) -gt 0 ]; then
+    if $HARDLINK_CHECK && [ $(find "$torrent_path" -type f -links +1 2>/dev/null | wc -l) -gt 0 ]; then
         echo -e "${INFO}Skipping ${NAME}$torrent_name${NC}"
         echo -e "${DETAIL}   Contains files with more than one hard link in: ${VALUE}$torrent_path${NC}"
         continue 
     fi
     # Check if torrent had been seeding for more than 10 days
-    if (( $torrent_seeding_time < 60*60*24*$SEEDING_DAYS_REQUIRED )); then
+    if $SEEDING_CHECK && (( $torrent_seeding_time < 60*60*24*$SEEDING_DAYS_REQUIRED )); then
         echo -e "${INFO}Skipping ${NAME}$torrent_name${NC}"
         echo -e "${DETAIL}   Seeding for less than $SEEDING_DAYS_REQUIRED days: ${VALUE}$(( $torrent_seeding_time / 60 / 60 / 24 )) days${NC}"
         continue
