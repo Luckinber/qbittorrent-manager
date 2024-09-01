@@ -1,5 +1,5 @@
 #!/bin/bash
-source config.sh
+source $(dirname "$0")/config.sh
 
 # Declare list of torrents to delete
 declare -a torrents_to_delete
