@@ -28,6 +28,9 @@ RELATIVE_PATH=CHANGE_ME
 # The actual ROOT path that ALL torrents are stored at on your filesystem, no trailing slash
 ABSOLUTE_PATH=CHANGE_ME
 
+# The path to the categories directory
+CATEGORIES_PATH=CHANGE_ME
+
 # The categories of torrents that this script should manage, delimited by spaces eg ("movies" "tv" "books")
 MANAGED_CATEGORIES=("CHANGE_ME" "CHANGE_ME")
 
