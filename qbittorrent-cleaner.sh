@@ -16,14 +16,24 @@ fi
 # Authenticate
 cookie=$(curl -is "$HOST/api/v2/auth/login" --data "username=$USERNAME&password=$PASSWORD" | grep 'set-cookie' | awk '{print $2}')
 if [ -z "${cookie}" ]; then
-	echo -e "${WARNING}Authentication failed${NC}"
-	exit
+    echo -e "${WARNING}Authentication failed${NC}"
+    exit
 fi
 
 # Get all torrents
 response=$(curl -s "$HOST/api/v2/torrents/info" --cookie "$cookie" --data "sort=name")
 # Parse JSON response
 json=$(echo $response | jq -r)
+
+# Build a set of all torrent paths
+declare -A torrent_paths
+echo -e "${INFO}Building set of all torrent paths${NC}"
+for row in $(echo $json | jq -r '.[] | @base64'); do
+    torrent=$(echo $row | base64 --decode)
+    torrent_path=$(echo $torrent | jq -r '.content_path' | sed "s|$RELATIVE_PATH|$ABSOLUTE_PATH|")
+    torrent_paths["$torrent_path"]=1
+    echo -e "${INFO} - ${NAME}$torrent_path${NC}"
+done
 
 # Declare list of directories to delete
 declare -a directories_to_delete
@@ -42,20 +52,11 @@ for category in "${MANAGED_CATEGORIES[@]}"; do
         if [ -e "$item" ]; then
             # Check if item is associated with any torrent
             echo -e "${INFO}Checking ${NAME}$item${NC}"
-            associated=false
-            for row in $(echo $json | jq -r '.[] | @base64'); do
-                torrent=$(echo $row | base64 --decode)
-                torrent_path=$(echo $torrent | jq -r '.content_path' | sed "s|$RELATIVE_PATH|$ABSOLUTE_PATH|")
-                if [[ "$item" == "$torrent_path"* ]]; then
-                    associated=true
-                    echo -e "${INFO}Associated with ${NAME}$(echo $torrent | jq -r '.name')${NC}"
-                    break
-                fi
-            done
-
-            if [ "$associated" = false ]; then
+            if [[ -z "${torrent_paths["$item"]}" ]]; then
                 echo -e "${WARNING}Not associated with any torrent${NC}"
                 directories_to_delete+=("$item")
+            else
+                echo -e "${INFO}Associated with a torrent${NC}"
             fi
         fi
     done
