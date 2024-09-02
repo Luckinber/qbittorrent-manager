@@ -1,12 +1,14 @@
 # qBittorrent Manager Script
 
-This script is used to manage torrents in qBittorrent. It authenticates with the qBittorrent API, fetches all torrents and determines if they should be deleted. It determines this by checking if the torrents;
+This script is used to manage torrents in qBittorrent. It authenticates with the qBittorrent API, fetches all torrents, and determines if they should be deleted. It determines this by checking if the torrents:
 
 - are in a managed category (set in the config),
 - aren't hardlinked (and won't save any space if deleted),
 - and have seeded long enough (default 10 days).
 
-It then removes them as well as their directory in case you had to extract compressed files from the torrent that aren't otherwise deleted by qBittorrent. 
+It then removes them as well as their directory in case you had to extract compressed files from the torrent that aren't otherwise deleted by qBittorrent.
+
+Additionally, there is a cleaner script that goes through the managed categories and deletes any files or directories that don't have an associated torrent. This helps in keeping your directories clean and free of orphaned files.
 
 ## Dependencies
 
@@ -25,6 +27,7 @@ sudo apt install jq curl
 git clone https://github.com/Luckinber/qbittorrent-manager.git
 cd qbittorrent-manager
 chmod +x qbittorrent-manager.sh
+chmod +x qbittorrent-cleaner.sh
 ```
 
 ## Configuration
@@ -35,6 +38,7 @@ Before running the script, you need to configure it by editing the `config.sh` f
 - `PASSWORD`: Your qBittorrent password.
 - `RELATIVE_PATH`: The ROOT path that qBitTorrent thinks ALL torrents are stored at.
 - `ABSOLUTE_PATH`: The actual ROOT path that ALL torrents are stored at on your filesystem.
+- `CATEGORIES_PATH`: The relative path from the ROOT path to the directory where the categories are stored.
 - `MANAGED_CATEGORIES`: The categories of torrents that this script should manage.
 
 Other values can be changed as well, but the defaults should be fine.
@@ -45,6 +49,18 @@ This script must be run on a machine that has access to the filesystem where you
 
 ```bash
 ./qbittorrent-manager.sh
+```
+
+To run the cleaner script, use the following command:
+
+```bash
+./qbittorrent-cleaner.sh
+```
+
+Both scripts will auto confirm deletions with the `-y` flag:
+
+```bash
+./qbittorrent-manager.sh -y
 ```
 
 ## Note
