@@ -1,11 +1,6 @@
 #!/bin/bash
 source $(dirname "$0")/config.sh
 
-# Declare list of torrents to delete
-declare -a torrents_to_delete
-declare -a hashes_to_delete
-declare -a directories_to_delete
-
 if [[ $1 == "-y" ]]; then
     AUTO_YES=true
 else 
@@ -29,6 +24,11 @@ fi
 response=$(curl -s "$HOST/api/v2/torrents/info" --cookie "$cookie" --data "sort=name")
 # Parse JSON response
 json=$(echo $response | jq -r)
+
+# Declare list of torrents to delete
+declare -a torrents_to_delete
+declare -a hashes_to_delete
+declare -a directories_to_delete
 
 # Iterate over torrent objects in base64 so that we can handle names with spaces
 for row in $(echo $json | jq -r '.[] | @base64'); do
