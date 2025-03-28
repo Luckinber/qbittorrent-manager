@@ -31,6 +31,13 @@ echo -e "${INFO}Building set of all torrent paths${NC}"
 for row in $(echo $json | jq -r '.[] | @base64'); do
     torrent=$(echo $row | base64 --decode)
     torrent_path=$(echo $torrent | jq -r '.content_path' | sed "s|$RELATIVE_PATH|$ABSOLUTE_PATH|")
+    torrent_name=$(echo $torrent | jq -r '.name')
+    # Path may end with a file if the torrent is a single file torrent, in this case we need to set the path to the directory above
+    # Check if directory above is equal to torrent name then set torrent path to that directory if so
+    directory_above=$(basename "$(dirname "$torrent_path")")
+    if [ "$directory_above" == "$torrent_name" ]; then
+        torrent_path=$(dirname "$torrent_path")
+    fi
     torrent_paths["$torrent_path"]=1
     echo -e "${INFO} - ${NAME}$torrent_path${NC}"
 done
