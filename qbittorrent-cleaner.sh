@@ -45,9 +45,23 @@ done
 # Declare list of directories to delete
 declare -a directories_to_delete
 
+# Get save paths for managed categories
+echo -e "${INFO}Getting save paths for managed categories${NC}"
+CATEGORIES_PATHS=$(curl -s "$HOST/api/v2/torrents/categories" --cookie "$cookie" | jq -r)
+declare -A categories_save_paths
+for row in $(echo $CATEGORIES_PATHS | jq -r '.[] | @base64'); do
+    category=$(echo $row | base64 --decode)
+    category_name=$(echo $category | jq -r '.name')
+    save_path=$(echo $category | jq -r '.savePath')
+    if [ "$save_path" == "" ]; then
+        save_path="$ABSOLUTE_PATH$CATEGORIES_PATH/$category_name"
+    fi
+    categories_save_paths["$category_name"]="$save_path"
+done
+
 # Iterate over managed categories
 for category in "${MANAGED_CATEGORIES[@]}"; do
-    category_path="$ABSOLUTE_PATH$CATEGORIES_PATH/$category"
+    category_path="${categories_save_paths[$category]}"
     echo -e "${INFO}Checking category ${VALUE}$category${INFO} at ${VALUE}$category_path${NC}"
     if [ ! -d "$category_path" ]; then
         echo -e "${INFO}Category ${VALUE}$category${INFO} does not exist${NC}"
