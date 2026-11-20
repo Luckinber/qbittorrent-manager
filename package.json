@@ -5,9 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "manager": "node app.js --run-manager",
-    "cleaner": "node app.js --run-cleaner",
-    "cleaner:auto": "node app.js --run-cleaner --auto-confirm"
+    "run-once": "node app.js --run-once"
   },
   "repository": {
     "type": "git",
@@ -28,7 +26,6 @@
   },
   "homepage": "https://github.com/Luckinber/qbittorrent-manager#readme",
   "dependencies": {
-    "@ctrl/qbittorrent": "^9.2.0",
     "node-cron": "^3.0.3",
     "dotenv": "^16.4.5"
   },
