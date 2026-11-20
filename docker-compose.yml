@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  # qBittorrent Manager Service
+  qbittorrent-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qbittorrent-manager
+    environment:
+      QBITTORRENT_HOST: http://qbittorrent:8080
+      QBITTORRENT_USERNAME: admin
+      QBITTORRENT_PASSWORD: admin
+
+      TORRENT_RELATIVE_PATH: /media/torrents
+      MANAGED_CATEGORIES: movies,tv,books
+      HARDLINK_CHECK: true
+      DRY_RUN: false
+    volumes:
+      - /path/to/torrents:/torrents
+    restart: unless-stopped

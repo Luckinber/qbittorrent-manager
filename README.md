@@ -1,68 +1,79 @@
-# qBittorrent Manager Script
+# qBittorrent Manager
 
-This script is used to manage torrents in qBittorrent. It authenticates with the qBittorrent API, fetches all torrents, and determines if they should be deleted. It determines this by checking if the torrents:
-
-- are in a managed category (set in the config),
-- aren't hardlinked (and won't save any space if deleted),
-- and have seeded long enough (default 10 days).
-
-It then removes them as well as their directory in case you had to extract compressed files from the torrent that aren't otherwise deleted by qBittorrent.
-
-Additionally, there is a cleaner script that goes through the managed categories and deletes any files or directories that don't have an associated torrent. This helps in keeping your directories clean and free of orphaned files.
-
-## Dependencies
-
-This script requires the following tools:
-
-- `jq`: A lightweight and flexible command-line JSON processor. This is used to parse the JSON response from the qBittorrent API. You can install it using your package manager, for example `sudo apt install jq` on Ubuntu.
-
-- `curl`: A command-line tool used for transferring data with URLs. This is used to send requests to the qBittorrent API. It's likely already installed on your system, but if not, you can install it using your package manager, for example `sudo apt install curl` on Ubuntu.
-
-## Installation
-
-To install this script, clone this repository and install the dependencies. You can do this by running the following commands:
-
-```bash
-sudo apt install jq curl
-git clone https://github.com/Luckinber/qbittorrent-manager.git
-cd qbittorrent-manager
-chmod +x qbittorrent-manager.sh
-chmod +x qbittorrent-cleaner.sh
-```
+A minimal, production-ready Node.js Docker application for managing torrents in qBittorrent. Automatically deletes torrents depending on category, hardlinks, and seeding time. Built-in cron scheduler for automatic operation.
 
 ## Configuration
 
-Before running the script, you need to configure it by editing the `config.sh` file. Change at least the following values:
+All settings are environment variables.
 
-- `USERNAME`: Your qBittorrent username.
-- `PASSWORD`: Your qBittorrent password.
-- `RELATIVE_PATH`: The ROOT path that qBitTorrent thinks ALL torrents are stored at.
-- `ABSOLUTE_PATH`: The actual ROOT path that ALL torrents are stored at on your filesystem.
-- `CATEGORIES_PATH`: The relative path from the ROOT path to the directory where the categories are stored.
-- `MANAGED_CATEGORIES`: The categories of torrents that this script should manage.
-
-Other values can be changed as well, but the defaults should be fine.
-
-## Usage
-
-This script must be run on a machine that has access to the filesystem where your torrents are stored (either locally or through a network share that supports hardlinks). After installing the dependencies and configuring the script, you can run it with the following command:
+### Required Variables
 
 ```bash
-./qbittorrent-manager.sh
+QBITTORRENT_HOST=http://qbittorrent:8080     # qBittorrent API URL
+QBITTORRENT_USERNAME=admin                   # qBittorrent username
+QBITTORRENT_PASSWORD=admin                   # qBittorrent password
+TORRENT_RELATIVE_PATH=/media/torrents        # Path qBittorrent sees internally
+MANAGED_CATEGORIES=movies,tv,books           # Categories to manage
 ```
 
-To run the cleaner script, use the following command:
+**Volume Mount:** Mount your torrent storage to `/torrents` in the container:
+```bash
+-v /actual/path/to/torrents:/torrents
+```
+
+### Optional Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SEEDING_DAYS_REQUIRED` | 10 | Minimum days a torrent must seed |
+| `HARDLINK_CHECK` | true | Skip torrents with hardlinked files |
+| `MANAGER_CRON_SCHEDULE` | "0 2 * * *" | Cron schedule for manager (2 AM daily) |
+| `LOG_LEVEL` | info | Log level: debug, info, warn, error |
+| `DRY_RUN` | false | Test mode (show what would be deleted) |
+
+See [.env.example](.env.example) for full details.
+
+## Quick Start
+
+### Docker Compose (Recommended)
 
 ```bash
-./qbittorrent-cleaner.sh
+git clone https://github.com/Luckinber/qbittorrent-manager.git
+cd qbittorrent-manager
+# Change: -v /path/to/torrents:/torrents
+docker-compose up -d
+docker-compose logs -f qbittorrent-manager
 ```
 
-Both scripts will auto confirm deletions with the `-y` flag:
+### Docker
 
 ```bash
-./qbittorrent-manager.sh -y
+# Build
+docker build -t qbittorrent-manager:latest .
+
+# Run (with cron scheduler)
+docker run --env-file .env \
+  -v /path/to/torrents:/torrents \
+  -d qbittorrent-manager:latest
+
+# Run (manual, one-time execution)
+docker run --env-file .env \
+  -v /path/to/torrents:/torrents \
+  qbittorrent-manager:latest --run-once
 ```
 
-## Note
+### Node.js (Manual)
 
-This script is intended to be used with qBittorrent. Ensure that the qBittorrent Web API is enabled and accessible.
+```bash
+# Install dependencies
+npm install
+# Run
+node app.js --run-once
+```
+
+## Notes
+
+- The container **must have access to your torrent storage** filesystem (via volume mount)
+- qBittorrent Web API must be enabled and accessible
+- Hardlink checking requires filesystem access
+- For security, use strong qBittorrent credentials
