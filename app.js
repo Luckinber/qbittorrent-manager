@@ -142,10 +142,60 @@ async function manager() {
       if (!response.ok) throw new Error(`Failed to delete torrents: ${response.statusText}`);
       logger.info('Torrents deleted successfully');
     }
-    
+
     logger.info('Finished managing torrents');
   } catch (error) {
     logger.error(`Error during torrent management: ${error.message}`);
+    logger.debug(error.stack);
+    process.exit(1);
+  }
+}
+
+async function cleanup() {
+  logger.info('Starting orphaned files cleanup process...');
+
+  try {
+    if (!cookie) await initqBittorrent();
+
+    // Get all torrents
+    const data = await fetch(`${config.host}/api/v2/torrents/info`, {
+      method: 'GET',
+      headers: {
+        'Cookie': cookie,
+      },
+    });
+    if (!data.ok) throw new Error(`Failed to fetch torrents: ${data.statusText}`);
+    const torrents = await data.json();
+    const torrentPaths = new Set(torrents.map(torrent => torrent.content_path.replace(config.relativePath, config.absolutePath).split('/').slice(0, (config.relativePath.split('/').length + 3)).join('/')));
+
+    for (const category of config.managedCategories) {
+      const categoryPath = `${config.absolutePath}/${category}`;
+      if (!fs.existsSync(categoryPath)) {
+        logger.warn(`Category path does not exist: ${categoryPath}`);
+        continue;
+      }
+      
+      // Check if directories and files are in the torrentPaths set
+      const items = fs.readdirSync(categoryPath);
+      for (const item of items) {
+        const itemPath = `${categoryPath}/${item}`;
+        if (!torrentPaths.has(itemPath)) {
+          logger.warn(`Orphaned file/directory found: ${itemPath}`);
+          if (!config.dryRun) {
+            try {
+              fs.rmSync(itemPath, { recursive: true, force: true });
+              logger.info(`Deleted orphaned file/directory: ${itemPath}`);
+            } catch (error) {
+              logger.error(`Failed to delete orphaned file/directory ${itemPath}: ${error.message}`);
+            }
+          }
+        }
+      }
+    }
+
+    logger.info('Finished cleaning up orphaned files');
+  } catch (error) {
+    logger.error(`Error during orphaned files cleanup: ${error.message}`);
     logger.debug(error.stack);
     process.exit(1);
   }
