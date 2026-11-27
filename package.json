@@ -1,0 +1,35 @@
+{
+  "name": "qbittorrent-manager",
+  "version": "2.0.0",
+  "description": "Docker-based qBittorrent torrent manager with cron scheduling",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "run-once": "node app.js --run-once"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Luckinber/qbittorrent-manager.git"
+  },
+  "keywords": [
+    "qbittorrent",
+    "torrent",
+    "manager",
+    "cron",
+    "docker"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Luckinber/qbittorrent-manager/issues"
+  },
+  "homepage": "https://github.com/Luckinber/qbittorrent-manager#readme",
+  "dependencies": {
+    "node-cron": "^3.0.3",
+    "dotenv": "^16.4.5"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

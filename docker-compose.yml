@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  # qBittorrent Manager Service
+  qbittorrent-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qbittorrent-manager
+    env_file:
+      - .env
+    environment:
+      TORRENT_ABSOLUTE_PATH: /storage
+      RUN_ONCE: false
+    volumes:
+      - /mnt/media:/storage
+    restart: unless-stopped
