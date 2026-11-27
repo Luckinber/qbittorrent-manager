@@ -8,6 +8,8 @@ services:
     container_name: qbittorrent-manager
     env_file:
       - .env
+    environment:
+      TORRENT_ABSOLUTE_PATH: /torrents
     volumes:
       - /path/to/torrents:/torrents
     restart: unless-stopped

@@ -101,8 +101,8 @@ async function manager() {
             logger.debug(`Skipping ${name} - contains hardlinked files`);
             continue;
           }
-        } catch (e) {
-          logger.warn(`Could not check hardlinks for ${name}: ${e.message}`);
+        } catch (error) {
+          logger.warn(`Could not check hardlinks for ${name}: ${error.message}`);
         }
       }
 
@@ -130,7 +130,7 @@ async function manager() {
     if (!config.dryRun) {
       logger.info('Deleting torrents...');
       const hashes = toDelete.map(item => item.hash);
-      const body = `hashes=${hashes[0]}&deleteFiles=false`;
+      const body = `hashes=${hashes.join('|')}&deleteFiles=true`;
       const response = await fetch(`${config.host}/api/v2/torrents/delete`, {
         method: 'POST',
         headers: {
