@@ -12,24 +12,27 @@ All settings are environment variables.
 QBITTORRENT_HOST=http://qbittorrent:8080     # qBittorrent API URL
 QBITTORRENT_USERNAME=admin                   # qBittorrent username
 QBITTORRENT_PASSWORD=admin                   # qBittorrent password
-TORRENT_RELATIVE_PATH=/media/torrents        # Path qBittorrent sees internally
+TORRENT_RELATIVE_PATH=/storage               # Path qBittorrent sees internally
+TORRENT_ABSOLUTE_PATH=/mnt/media             # Path to torrent storage
 MANAGED_CATEGORIES=movies,tv,books           # Categories to manage
 ```
 
-**Volume Mount:** Mount your torrent storage to `/torrents` in the container:
+**Volume Mount:** Mount your torrent storage to `/storage` in the container:
+
 ```bash
--v /actual/path/to/torrents:/torrents
+-v /actual/path/to/torrents:/storage
 ```
 
 ### Optional Variables
 
 | Variable | Default | Description |
-|----------|---------|-------------|
-| `SEEDING_DAYS_REQUIRED` | 10 | Minimum days a torrent must seed |
-| `HARDLINK_CHECK` | true | Skip torrents with hardlinked files |
-| `MANAGER_CRON_SCHEDULE` | "0 2 * * *" | Cron schedule for manager (2 AM daily) |
-| `LOG_LEVEL` | info | Log level: debug, info, warn, error |
-| `DRY_RUN` | false | Test mode (show what would be deleted) |
+| ---------- | --------- | ------------- |
+| `SEEDING_DAYS_REQUIRED` | `10` | Minimum days a torrent must seed |
+| `HARDLINK_CHECK` | `true` | Skip torrents with hardlinked files |
+| `MANAGER_CRON_SCHEDULE` | `0 2 * * *` | Cron schedule for manager (2 AM daily) |
+| `LOG_LEVEL` | `info` | Log level: debug, info, warn, error |
+| `DRY_RUN` | `false` | Test mode (show what would be deleted) |
+| `RUN_ONCE` | `false` | Run manager once and exit (no scheduling) |
 
 See [.env.example](.env.example) for full details.
 
@@ -40,12 +43,19 @@ See [.env.example](.env.example) for full details.
 ```bash
 git clone https://github.com/Luckinber/qbittorrent-manager.git
 cd qbittorrent-manager
-# Change: -v /path/to/torrents:/torrents
 docker-compose up -d
 docker-compose logs -f qbittorrent-manager
 ```
 
 ### Docker
+
+The GitHub Actions workflow publishes `ghcr.io/luckinber/qbittorrent-manager:latest`
+on pushes to `main`. It also publishes commit SHA tags and version tags (for
+example, `v1.0.0`). Pull the image with:
+
+```bash
+docker pull ghcr.io/luckinber/qbittorrent-manager:latest
+```
 
 ```bash
 # Build
@@ -53,12 +63,12 @@ docker build -t qbittorrent-manager:latest .
 
 # Run (with cron scheduler)
 docker run --env-file .env \
-  -v /path/to/torrents:/torrents \
+  -v /path/to/torrents:/storage \
   -d qbittorrent-manager:latest
 
 # Run (manual, one-time execution)
 docker run --env-file .env \
-  -v /path/to/torrents:/torrents \
+  -v /path/to/torrents:/storage \
   qbittorrent-manager:latest --run-once
 ```
 
@@ -73,7 +83,7 @@ node app.js --run-once
 
 ## Notes
 
-- The container **must have access to your torrent storage** filesystem (via volume mount)
+- The container **must have access to your torrent storage** filesystem (via volume mount or share)
 - qBittorrent Web API must be enabled and accessible
 - Hardlink checking requires filesystem access
 - For security, use strong qBittorrent credentials
