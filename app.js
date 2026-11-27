@@ -8,13 +8,14 @@ const config = {
   username: process.env.QBITTORRENT_USERNAME || '',
   password: process.env.QBITTORRENT_PASSWORD || '',
   relativePath: process.env.TORRENT_RELATIVE_PATH || '',
-  absolutePath: process.env.TORRENT_ABSOLUTE_PATH || '/torrents',
+  absolutePath: process.env.TORRENT_ABSOLUTE_PATH || '',
   managedCategories: (process.env.MANAGED_CATEGORIES || '').split(',').filter(Boolean),
   seedingDaysRequired: parseInt(process.env.SEEDING_DAYS_REQUIRED || '10', 10),
   hardlinkCheck: process.env.HARDLINK_CHECK !== 'false',
   managerCronSchedule: process.env.MANAGER_CRON_SCHEDULE || '0 2 * * *', // 2 AM daily
   logLevel: process.env.LOG_LEVEL || 'info',
   dryRun: process.env.DRY_RUN === 'true',
+  runOnce: process.env.RUN_ONCE === 'true' || process.argv.includes('--run-once'),
 };
 
 const logger = {
@@ -157,7 +158,7 @@ async function main() {
   if (!config.username) missing.push('QBITTORRENT_USERNAME');
   if (!config.password) missing.push('QBITTORRENT_PASSWORD');
   if (!config.relativePath) missing.push('TORRENT_RELATIVE_PATH');
-  
+  if (!config.absolutePath) missing.push('TORRENT_ABSOLUTE_PATH');
   if (missing.length > 0) {
     logger.error(`Missing required environment variables: ${missing.join(', ')}`);
     process.exit(1);
@@ -167,9 +168,9 @@ async function main() {
   logger.info(`Qbitorrent relative path: ${config.relativePath}`);
   logger.info(`File system absolute path: ${config.absolutePath}`);
   logger.info(`Dry run: ${config.dryRun}`);
+  logger.info(`Run once: ${config.runOnce}`);
 
-  const args = process.argv.slice(2);
-  if (args.includes('--run-once')) {
+  if (config.runOnce) {
     logger.info('Running manager once (no scheduling)');
     await manager();
   } else {

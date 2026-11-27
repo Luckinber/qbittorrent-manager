@@ -9,7 +9,8 @@ services:
     env_file:
       - .env
     environment:
-      TORRENT_ABSOLUTE_PATH: /torrents
+      TORRENT_ABSOLUTE_PATH: /storage
+      RUN_ONCE: false
     volumes:
-      - /path/to/torrents:/torrents
+      - /mnt/media:/storage
     restart: unless-stopped
