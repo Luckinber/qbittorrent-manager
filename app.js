@@ -85,6 +85,13 @@ async function manager() {
         continue;
       }
 
+      // Check: seeding time
+      const seedingDays = seedingTime / (60 * 60 * 24);
+      if (seedingDays < config.seedingDaysRequired) {
+        logger.debug(`Skipping ${name} - seeding for only ${seedingDays.toFixed(1)} days`);
+        continue;
+      }
+
       // Check: hardlinks
       if (config.hardlinkCheck && fs.existsSync(path)) {
         try {
@@ -105,13 +112,6 @@ async function manager() {
         } catch (error) {
           logger.warn(`Could not check hardlinks for ${name}: ${error.message}`);
         }
-      }
-
-      // Check: seeding time
-      const seedingDays = seedingTime / (60 * 60 * 24);
-      if (seedingDays < config.seedingDaysRequired) {
-        logger.debug(`Skipping ${name} - seeding for only ${seedingDays.toFixed(1)} days`);
-        continue;
       }
 
       // Passed all checks - mark for deletion
